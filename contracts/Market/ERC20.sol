@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.0;
 
+import "./Owner.sol";
+
 interface IERC20 {
     function decimals() external view returns(uint);
 
@@ -19,12 +21,10 @@ interface IERC20 {
 
     event Transfer(address indexed from, address indexed to, uint amount);
 
-    event Approval(address owner, address to, uint amount);
-
-    event ChangeOwner(address owner);
+    event Approval(address indexed owner, address indexed to, uint amount);
 }
 
-contract ERC20 is IERC20 {
+contract ERC20 is IERC20, Owner {
     mapping (address => uint) balances;
     mapping (address => mapping(address => uint)) allowances;
 
@@ -32,9 +32,10 @@ contract ERC20 is IERC20 {
     string public symbol;
 
     uint decimal;
-    address public owner;
 
     uint _totalSupply;
+
+    event ChangeOwner(address owner);
 
     constructor (string memory _name, string memory _symbol, uint _decimal, uint _total) {
         name = _name;
@@ -47,11 +48,6 @@ contract ERC20 is IERC20 {
 
         balances[msg.sender] = _totalSupply;
         emit Transfer(address(0), msg.sender, _totalSupply);
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not an Owner!");
-        _;
     }
 
     modifier enoughTokens(address _from, uint _amount) {
@@ -71,7 +67,7 @@ contract ERC20 is IERC20 {
         return balances[account];
     }
 
-    function transfer(address to, uint amount) external override returns(bool) {
+    function transfer(address to, uint amount) external override enoughTokens(msg.sender, amount) returns(bool) {
         balances[msg.sender] -= amount;
         balances[address(to)] += amount;
         emit Transfer(msg.sender, to, amount);
@@ -82,12 +78,12 @@ contract ERC20 is IERC20 {
         return allowances[_owner][spender];
     }
 
-    function approve(address spender, uint amount) external override {
+    function approve(address spender, uint amount) public virtual override {
         allowances[msg.sender][spender] = amount;
         emit Approval(msg.sender, spender, amount);
     }
 
-    function transferFrom(address sender, address recipient, uint amount) external override {
+    function transferFrom(address sender, address recipient, uint amount) public override enoughTokens(sender, amount) {
         allowances[sender][recipient] -= amount;
         balances[sender] -= amount;
         balances[recipient] += amount;
@@ -100,7 +96,7 @@ contract ERC20 is IERC20 {
         emit Transfer(address(0), msg.sender, amount);
     }
 
-    function burn(uint amount) public onlyOwner {
+    function burn(uint amount) public onlyOwner enoughTokens(msg.sender, amount) {
         balances[msg.sender] -= amount;
         _totalSupply -= amount;
         emit Transfer(address(0), msg.sender, amount);
