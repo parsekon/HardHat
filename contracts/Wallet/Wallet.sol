@@ -8,6 +8,10 @@ contract Wallet is SharedWallet {
     event MoneyWithdraw(address indexed _to, uint _amount);
     event ReceivedMoney(address _from, uint _amount);
 
+    function sendMoney() external payable {
+        payable(address(this)).transfer(msg.value);
+    }
+
     function getBallance() public view returns(uint) {
         return address(this).balance;
     }

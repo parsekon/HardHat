@@ -19,11 +19,11 @@ contract TokenSell is Owner {
         rate = 0.001 ether;
     }
 
-    function balanceThis() public view returns(uint) {
+    function balanceThis() public view returns (uint) {
         return addrThis.balance;
     }
 
-    function balanceToken() public view returns(uint) {
+    function balanceToken() public view returns (uint) {
         return token.balanceOf(addrThis);
     }
 

