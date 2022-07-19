@@ -10,15 +10,12 @@ contract Owner {
     // маппинг владелец => true/false
     mapping(address => bool) public isOwner;
 
-    // конструктор принимает массив адресов владельцев
-    // (при развертывании необходимов в remix указывать адреса в кавычках)
-    // проверяем, что массив не нулевой длины
-    // в цикле добавляем владельцев в массив и присваиваем значение true
+    // добавляем первогоы владельца в массив и присваиваем значение true
     // проверяем на ненулевой адрес и что адрес еще не является владельцем
     constructor() {
         owner = msg.sender;
         owners.push(owner);
-        isOwner[owner] = true; 
+        isOwner[owner] = true;
     }
 
     modifier onlyOwners() {
@@ -32,10 +29,14 @@ contract Owner {
     }
 
     // добавляем отдельные адреса в массив owners
-    function addOwner(address _newOwner) external onlyOwners isOwners(_newOwner) {
+    function addOwner(address _newOwner)
+        external
+        onlyOwners
+        isOwners(_newOwner)
+    {
         owners.push(_newOwner);
-        isOwner[_newOwner] = true;      
-    } 
+        isOwner[_newOwner] = true;
+    }
 
     // удаляем владельца
     function delOwner(address _delOwner) external onlyOwners {

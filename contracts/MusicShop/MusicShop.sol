@@ -20,6 +20,7 @@ contract MusicShop is Owner {
 
     // объект заказа тованый номер альбома, покупатель, дата покупки, статус заказа
     struct Order {
+        uint orderId;
         string albumUid;
         address customer;
         uint orderdAt;
@@ -36,12 +37,14 @@ contract MusicShop is Owner {
     }
 
     // текущий индекс
-    uint currentIndex;
+    uint public currentIndex;
+    uint public currentOrderId;
 
     // события появился новый альбом, продажа альбома, альбом отправлен
     event AddAlbum(string _title, uint _price);
     event AlbumBought(
         string indexed uid,
+        string rawUid,
         address indexed customer,
         uint indexed timestamp
     );
@@ -85,6 +88,7 @@ contract MusicShop is Owner {
         quantityAlbum[albumToBuy.title] -= _quantity;
         orders.push(
             Order({
+                orderId: currentOrderId,
                 albumUid: albumToBuy.uid,
                 customer: msg.sender,
                 orderdAt: block.timestamp,
@@ -92,7 +96,8 @@ contract MusicShop is Owner {
                 status: OrderStatus.Paid
             })
         );
-        emit AlbumBought(albumToBuy.uid, msg.sender, block.timestamp);
+        currentOrderId++;
+        emit AlbumBought(albumToBuy.uid, albumToBuy.uid, msg.sender, block.timestamp);
     }
 
     // изменяем статус на отправлено
