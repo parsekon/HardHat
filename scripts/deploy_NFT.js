@@ -2,10 +2,10 @@ const hre = require('hardhat');
 
 async function main() {
     // We get the contract to deploy
-    const IterMapping = await ethers.getContractFactory("IterMapping");
-    const iterMapping = await IterMapping.deploy();
+    const MyToken = await ethers.getContractFactory("MyToken");
+    const myToken = await MyToken.deploy();
   
-    console.log("IterMapping:", iterMapping.address);
+    console.log("MyToken:", myToken.address);
   }
   
   main()
