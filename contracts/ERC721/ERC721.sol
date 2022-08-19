@@ -199,7 +199,7 @@ abstract contract ERC721 is ERC165, IERC721, IERC721Metadata {
 
         return
             bytes(baseURI).length > 0
-                ? string(abi.encodePacked(baseURI, tokenId.toString()))
+                ? string(abi.encodePacked(baseURI, tokenId.toString())) // string.concat(baseURI, tokenId.toString())
                 : "";
     }
 
