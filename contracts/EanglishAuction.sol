@@ -97,7 +97,7 @@ contract EanglishAuction {
         emit AuctionEnd(higestBidder, higestBid);
     }
 
-    function  makeBid() external payable notEnded hasStarted {
+    function  makeBid() external payable hasStarted notEnded {
         require(msg.value > higestBid, "Bid is small");
         bids[msg.sender] += msg.value;
         

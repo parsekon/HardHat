@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.15;
 
 // контракт английский аукцион
 // устанавливается стартовая цена startingPrice товара item, шаг уменьшения цены в зависимости от времени которое прошло со старта аукциона
@@ -9,12 +9,12 @@ pragma solidity ^0.8.0;
 // buy покупается товар
 
 contract DucthAuction {
-    uint constant DURATION = 2 days;
-    address public immutable seller;
-    uint public immutable startingPrice;
-    uint public immutable discountPrice;
-    uint public immutable startAt;
-    uint public immutable endAt;
+    uint public DURATION = 2 days;
+    address public seller;
+    uint public startingPrice;
+    uint public discountPrice;
+    uint public startAt;
+    uint public endAt;
     string public item;
     bool public stopped;
 
@@ -32,6 +32,19 @@ contract DucthAuction {
         discountPrice = _discountPrice;
         startAt = block.timestamp;
         endAt = block.timestamp + DURATION;
+        require(_startingPrice >= discountPrice * DURATION, "Starting price and discount incorrect!");
+    }
+
+    function startNewAuction(uint _startingPrice, string memory _item, uint _discountPrice, uint _duration) external {
+        require(stopped, "The auction is still going on");
+        stopped = false;
+        seller = msg.sender;
+        startingPrice = _startingPrice;
+        item = _item;
+        discountPrice = _discountPrice;
+        startAt = block.timestamp;
+        endAt = startAt + DURATION;
+        DURATION = _duration;
         require(_startingPrice >= discountPrice * DURATION, "Starting price and discount incorrect!");
     }
 
