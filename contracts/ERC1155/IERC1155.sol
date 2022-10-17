@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./ERC165.sol";
+import "./IERC165.sol";
 
 interface IERC1155 is IERC165 {
     event TransferSingle (
@@ -32,7 +32,7 @@ interface IERC1155 is IERC165 {
 
     function balanceOfBatch(
         address[] calldata accounts,
-        uint[] calldata
+        uint[] calldata ids
     ) external returns(uint[] memory);
 
     function setApprovalForAll(
