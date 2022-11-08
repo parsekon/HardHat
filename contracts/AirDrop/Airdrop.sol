@@ -4,66 +4,58 @@ pragma solidity 0.8.10;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Airdrop is Ownable {
+contract Drop is Ownable {
 	IERC20 public token;
-	mapping (address => bool) public successAirdrops;
-	uint public amountAirdrop;
-	
+	mapping(address => bool) public successAirdrop;
+	uint public amountDrop;
 
-	constructor(address token_, uint _amountAirdrop) {
-		require(token_ != address(0x0));
-		token = IERC20(token_);
-        amountAirdrop = _amountAirdrop;
+	constructor(address _token, uint _amountDrop) {
+		require (address(_token) != address(0), "Address token is zero!");
+		token = IERC20(_token);
+		amountDrop = _amountDrop;
 	}
 
-	modifier airdropNotMake() { 
-		require (!successAirdrops[msg.sender], "Your address already received airdrop!"); 
-		_; 
+	event GetAirdrop(address dropper, uint amount);
+	event Withdraw(address _owner, uint _withdraw);
+
+	function getDrop() external {
+		require(!successAirdrop[msg.sender], "You alredy get drop!");
+        successAirdrop[msg.sender] = true;
+		token.transfer(msg.sender, amountDrop);
+
+		emit GetAirdrop(msg.sender, amountDrop);
 	}
 
-	event AirdropReceived(address droper, uint value);
-    event Withdraw(uint amount);
-	
-    // To distribute tokens, it is necessary to transfer the required number of tokens to the contract address
-    // Any address gets an airdrop
-	function getAirdrop() external airdropNotMake {
-        successAirdrops[msg.sender] = true;
-		token.transfer(msg.sender, amountAirdrop);
-		emit AirdropReceived(msg.sender, amountAirdrop);
-	}
-
-    // Changing the token
-    function changeToken(address newToken) external onlyOwner {
-        token = IERC20(newToken);
-    }
-
-	// Changing the amount of airdrop
-	function changeAmountAirdrop(uint _amount) external onlyOwner {
-		amountAirdrop = _amount;
-	}
-
-	// Removes the address from the list of addresses that received airdrop
-	function cancelSuccessAirdrop(address _droper) external onlyOwner {
-		require(successAirdrops[_droper], "This address not received airdrop!");
-		successAirdrops[_droper] = false;
-	}
-
-	// Checking the balance of tokens on the contract
-	function getBalance() external view returns(uint) {
+	function getBalance() public view returns(uint) {
 		return token.balanceOf(address(this));
 	}
 
-    // Withdrawal of tokens to the wallet of the contract creator
-	function withdrawToken() external onlyOwner {
-		uint _amount = token.balanceOf(address(this));
-		require(_amount > 0, "Not enough tokens!");
-		token.transfer(msg.sender, _amount);
-        emit Withdraw(_amount);
+	function withdraw() external onlyOwner {
+		uint value = getBalance();
+        address owner = owner();
+		require(value > 0, "Not enough tokens!");
+		token.transfer(owner, value);
+
+		emit Withdraw(owner, value);
 	}
 
-    function renounceOwnership() public pure override  {
-        revert();
-    }
+	function changeAmountDrop(uint _value) external onlyOwner {
+		require(_value > 0, "Value should not be zero");
+		amountDrop = _value;
+	}
+
+	function changeToken(address token_) external onlyOwner {
+		token = IERC20(token_);
+	}
+
+	function changeSuccess(address _dropper) external onlyOwner {
+		require(successAirdrop[_dropper], "You haven't received airdrop yet");
+		successAirdrop[_dropper] = false;
+	}
+
+	function renounceOwnership() public pure override {
+		revert("Not success!");
+	}
 
 	fallback() external payable {
         revert();
